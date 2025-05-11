@@ -6,13 +6,13 @@
 
 
 
-void addTest(double *a_d, double *b_d, double *c_d, const int N{
+__global__ void addTest_kernel(double *a_d, double *b_d, double *c_d, const int N){
 
+	int id = threadIdx.x * blockDim.x + blockIdx.x;
 
-
-	for(int t = 0; t < 10000000; ++t){
-		for(int i = 0; i < N; ++i){
-			c[i] += a[i] + b[i];
+	if(id < N){
+		for(int t = 0; t < 10000000; ++t){
+			c_d[id] += a_d[id] + b_d[id];
 		}
 	}
 }
@@ -21,7 +21,6 @@ void addTest(double *a_d, double *b_d, double *c_d, const int N{
 int main(){
 
 	int N = 100;
-	int time = 0;
 
 	double *a_h, *b_h, *c_h;
 	double *a_d, *b_d, *c_d;
@@ -55,7 +54,7 @@ int main(){
 
 	cudaEventRecord(tt1, 0);
 
-	addTest_kernel <<< (N + 127) / 128, 128 >>>(a_d, b_d, c_d);
+	addTest_kernel <<< (N + 127) / 128, 128 >>>(a_d, b_d, c_d, N);
 
 	cudaEventRecord(tt2, 0);
 	cudaEventSynchronize(tt2);
