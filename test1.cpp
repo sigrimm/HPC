@@ -6,14 +6,12 @@
 
 
 
-void addTest(double *a, double *b, double *c, const int N, int &time){
+void addTest(double *a, double *b, double *c, const int N, double t, int &time){
 
 	std::chrono::steady_clock::time_point time_begin = std::chrono::steady_clock::now();
 
-	for(int t = 0; t < 10000000; ++t){
-		for(int i = 0; i < N; ++i){
-			c[i] += a[i] + b[i];
-		}
+	for(int i = 0; i < N; ++i){
+		c[i] += a[i] * t + 1.5 * t * b[i] + 0.8 * t * t;
 	}
         std::chrono::steady_clock::time_point time_end = std::chrono::steady_clock::now();
         time += std::chrono::duration_cast<std::chrono::microseconds>(time_end - time_begin).count();
@@ -22,7 +20,7 @@ void addTest(double *a, double *b, double *c, const int N, int &time){
 
 int main(){
 
-	int N = 100;
+	int N = 500000;
 	int time = 0;
 
 	double *a, *b, *c;
@@ -38,7 +36,7 @@ int main(){
 		c[i] = 0.0;
 	}
 
-	addTest(a, b, c, N, time);
+	addTest(a, b, c, N, 1.5, time);
 
 
 	printf("Time in seconds:  %.8g\n", time / 1000000.0);

@@ -6,21 +6,19 @@
 
 
 
-__global__ void addTest_kernel(double *a_d, double *b_d, double *c_d, const int N){
+__global__ void addTest_kernel(double *a_d, double *b_d, double *c_d, double t, const int N){
 
 	int id = threadIdx.x * blockDim.x + blockIdx.x;
 
 	if(id < N){
-		for(int t = 0; t < 10000000; ++t){
-			c_d[id] += a_d[id] + b_d[id];
-		}
+		c_d[id] += a_d[id] * t + 1.5 * t * b_d[id] + 0.8 * t * t;
 	}
 }
 
 
 int main(){
 
-	int N = 100;
+	int N = 500000;
 
 	double *a_h, *b_h, *c_h;
 	double *a_d, *b_d, *c_d;
@@ -49,12 +47,13 @@ int main(){
 	cudaMemcpy(c_d, c_h, N * sizeof(double), cudaMemcpyHostToDevice);
 
 
+	cudaDeviceSynchronize();
 	cudaEventCreate(&tt1);
 	cudaEventCreate(&tt2);
 
 	cudaEventRecord(tt1, 0);
 
-	addTest_kernel <<< (N + 127) / 128, 128 >>>(a_d, b_d, c_d, N);
+	addTest_kernel <<< (N + 127) / 128, 128 >>>(a_d, b_d, c_d, N, 1.5);
 
 	cudaEventRecord(tt2, 0);
 	cudaEventSynchronize(tt2);
